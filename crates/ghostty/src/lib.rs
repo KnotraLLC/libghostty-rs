@@ -142,8 +142,7 @@ impl Terminal {
 
     pub fn mode_get(&self, mode: ffi::GhosttyMode) -> Result<bool, Error> {
         let mut value = false;
-        let result =
-            unsafe { ffi::ghostty_terminal_mode_get(self.ptr.as_ptr(), mode, &mut value) };
+        let result = unsafe { ffi::ghostty_terminal_mode_get(self.ptr.as_ptr(), mode, &mut value) };
         from_result(result)?;
         Ok(value)
     }
@@ -235,11 +234,7 @@ pub struct Formatter<'t> {
 }
 
 impl<'t> Formatter<'t> {
-    pub fn new(
-        terminal: &'t Terminal,
-        format: FormatterFormat,
-        trim: bool,
-    ) -> Result<Self, Error> {
+    pub fn new(terminal: &'t Terminal, format: FormatterFormat, trim: bool) -> Result<Self, Error> {
         let mut opts = ffi::GhosttyFormatterTerminalOptions::default();
         opts.size = std::mem::size_of::<ffi::GhosttyFormatterTerminalOptions>();
         opts.emit = format.to_raw();
@@ -247,12 +242,7 @@ impl<'t> Formatter<'t> {
 
         let mut raw: ffi::GhosttyFormatter_ptr = std::ptr::null_mut();
         let result = unsafe {
-            ffi::ghostty_formatter_terminal_new(
-                std::ptr::null(),
-                &mut raw,
-                terminal.as_raw(),
-                opts,
-            )
+            ffi::ghostty_formatter_terminal_new(std::ptr::null(), &mut raw, terminal.as_raw(), opts)
         };
         from_result(result)?;
         let ptr = NonNull::new(raw).ok_or(Error::OutOfMemory)?;
@@ -376,11 +366,7 @@ impl SgrParser {
         })
     }
 
-    pub fn set_params(
-        &mut self,
-        params: &[u16],
-        separators: Option<&[u8]>,
-    ) -> Result<(), Error> {
+    pub fn set_params(&mut self, params: &[u16], separators: Option<&[u8]>) -> Result<(), Error> {
         let sep_ptr = match separators {
             Some(seps) => {
                 assert!(
@@ -404,11 +390,7 @@ impl SgrParser {
     pub fn next_attr(&mut self) -> Option<ffi::GhosttySgrAttribute> {
         let mut attr = ffi::GhosttySgrAttribute::default();
         let has_next = unsafe { ffi::ghostty_sgr_next(self.ptr.as_ptr(), &mut attr) };
-        if has_next {
-            Some(attr)
-        } else {
-            None
-        }
+        if has_next { Some(attr) } else { None }
     }
 }
 
@@ -482,18 +464,10 @@ pub fn build_info_optimize() -> Result<ffi::GhosttyOptimizeMode, Error> {
 // Focus encode
 // ---------------------------------------------------------------------------
 
-pub fn focus_encode(
-    event: ffi::GhosttyFocusEvent,
-    buf: &mut [u8],
-) -> Result<usize, Error> {
+pub fn focus_encode(event: ffi::GhosttyFocusEvent, buf: &mut [u8]) -> Result<usize, Error> {
     let mut written: usize = 0;
     let result = unsafe {
-        ffi::ghostty_focus_encode(
-            event,
-            buf.as_mut_ptr().cast(),
-            buf.len(),
-            &mut written,
-        )
+        ffi::ghostty_focus_encode(event, buf.as_mut_ptr().cast(), buf.len(), &mut written)
     };
     from_result_with_len(result, written)
 }
@@ -524,9 +498,8 @@ impl RenderState {
     }
 
     pub fn update(&mut self, terminal: &mut Terminal) -> Result<(), Error> {
-        let result = unsafe {
-            ffi::ghostty_render_state_update(self.ptr.as_ptr(), terminal.as_raw())
-        };
+        let result =
+            unsafe { ffi::ghostty_render_state_update(self.ptr.as_ptr(), terminal.as_raw()) };
         from_result(result)
     }
 
@@ -636,9 +609,8 @@ impl RenderState {
     pub fn colors_get(&self) -> Result<ffi::GhosttyRenderStateColors, Error> {
         let mut colors = ffi::GhosttyRenderStateColors::default();
         colors.size = std::mem::size_of::<ffi::GhosttyRenderStateColors>();
-        let result = unsafe {
-            ffi::ghostty_render_state_colors_get(self.ptr.as_ptr(), &mut colors)
-        };
+        let result =
+            unsafe { ffi::ghostty_render_state_colors_get(self.ptr.as_ptr(), &mut colors) };
         from_result(result)?;
         Ok(colors)
     }
@@ -665,9 +637,7 @@ impl Drop for RenderState {
 // RenderStateRowIterator
 // ---------------------------------------------------------------------------
 
-fn render_state_row_iterator_next(
-    ptr: NonNull<ffi::GhosttyRenderStateRowIterator>,
-) -> bool {
+fn render_state_row_iterator_next(ptr: NonNull<ffi::GhosttyRenderStateRowIterator>) -> bool {
     unsafe { ffi::ghostty_render_state_row_iterator_next(ptr.as_ptr()) }
 }
 
@@ -729,9 +699,7 @@ fn render_state_row_set_dirty(
     from_result(result)
 }
 
-fn render_state_row_cells_next(
-    ptr: NonNull<ffi::GhosttyRenderStateRowCells>,
-) -> bool {
+fn render_state_row_cells_next(ptr: NonNull<ffi::GhosttyRenderStateRowCells>) -> bool {
     unsafe { ffi::ghostty_render_state_row_cells_next(ptr.as_ptr()) }
 }
 
@@ -783,7 +751,7 @@ fn render_state_row_cell_get_graphemes_len(
 
 fn render_state_row_cell_get_graphemes_buf(
     ptr: NonNull<ffi::GhosttyRenderStateRowCells>,
-    buf: &mut [u32],
+    buf: &mut [char],
 ) -> Result<(), Error> {
     let result = unsafe {
         ffi::ghostty_render_state_row_cells_get(
@@ -909,8 +877,7 @@ pub struct RenderStateRowCells {
 impl RenderStateRowCells {
     pub fn new() -> Result<Self, Error> {
         let mut raw: ffi::GhosttyRenderStateRowCells_ptr = std::ptr::null_mut();
-        let result =
-            unsafe { ffi::ghostty_render_state_row_cells_new(std::ptr::null(), &mut raw) };
+        let result = unsafe { ffi::ghostty_render_state_row_cells_new(std::ptr::null(), &mut raw) };
         from_result(result)?;
         let ptr = NonNull::new(raw).ok_or(Error::OutOfMemory)?;
         Ok(Self {
@@ -924,8 +891,7 @@ impl RenderStateRowCells {
     }
 
     pub fn select(&mut self, x: u16) -> Result<(), Error> {
-        let result =
-            unsafe { ffi::ghostty_render_state_row_cells_select(self.ptr.as_ptr(), x) };
+        let result = unsafe { ffi::ghostty_render_state_row_cells_select(self.ptr.as_ptr(), x) };
         from_result(result)
     }
 
@@ -941,7 +907,7 @@ impl RenderStateRowCells {
         render_state_row_cell_get_graphemes_len(self.ptr)
     }
 
-    pub fn graphemes_buf(&self, buf: &mut [u32]) -> Result<(), Error> {
+    pub fn graphemes_buf(&self, buf: &mut [char]) -> Result<(), Error> {
         render_state_row_cell_get_graphemes_buf(self.ptr, buf)
     }
 
@@ -998,7 +964,7 @@ impl RenderStateCell<'_> {
         render_state_row_cell_get_graphemes_len(self.ptr)
     }
 
-    pub fn graphemes_buf(&self, buf: &mut [u32]) -> Result<(), Error> {
+    pub fn graphemes_buf(&self, buf: &mut [char]) -> Result<(), Error> {
         render_state_row_cell_get_graphemes_buf(self.ptr, buf)
     }
 }
@@ -1125,11 +1091,7 @@ impl KeyEncoder {
         })
     }
 
-    pub fn setopt(
-        &mut self,
-        option: ffi::GhosttyKeyEncoderOption,
-        value: *const std::ffi::c_void,
-    ) {
+    pub fn setopt(&mut self, option: ffi::GhosttyKeyEncoderOption, value: *const std::ffi::c_void) {
         unsafe { ffi::ghostty_key_encoder_setopt(self.ptr.as_ptr(), option, value) }
     }
 
@@ -1205,11 +1167,7 @@ impl MouseEvent {
         let mut button: ffi::GhosttyMouseButton = 0;
         let has_button =
             unsafe { ffi::ghostty_mouse_event_get_button(self.ptr.as_ptr(), &mut button) };
-        if has_button {
-            Some(button)
-        } else {
-            None
-        }
+        if has_button { Some(button) } else { None }
     }
 
     pub fn set_mods(&mut self, mods: ffi::GhosttyMods) {
@@ -1298,11 +1256,9 @@ impl Drop for MouseEncoder {
 
 // ---------------------------------------------------------------------------
 // Cell / Row helpers
-// ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------``
 
-pub fn cell_get_content_tag(
-    cell: ffi::GhosttyCell,
-) -> Result<ffi::GhosttyCellContentTag, Error> {
+pub fn cell_get_content_tag(cell: ffi::GhosttyCell) -> Result<ffi::GhosttyCellContentTag, Error> {
     let mut value: ffi::GhosttyCellContentTag = 0;
     let result = unsafe {
         ffi::ghostty_cell_get(
@@ -1354,30 +1310,4 @@ pub fn cell_get_color_rgb(cell: ffi::GhosttyCell) -> Result<ffi::GhosttyColorRgb
     };
     from_result(result)?;
     Ok(value)
-}
-
-// ---------------------------------------------------------------------------
-// UTF-8 encoding helper
-// ---------------------------------------------------------------------------
-
-pub fn utf8_encode(cp: u32, out: &mut [u8; 4]) -> usize {
-    if cp < 0x80 {
-        out[0] = cp as u8;
-        1
-    } else if cp < 0x800 {
-        out[0] = (0xC0 | (cp >> 6)) as u8;
-        out[1] = (0x80 | (cp & 0x3F)) as u8;
-        2
-    } else if cp < 0x10000 {
-        out[0] = (0xE0 | (cp >> 12)) as u8;
-        out[1] = (0x80 | ((cp >> 6) & 0x3F)) as u8;
-        out[2] = (0x80 | (cp & 0x3F)) as u8;
-        3
-    } else {
-        out[0] = (0xF0 | (cp >> 18)) as u8;
-        out[1] = (0x80 | ((cp >> 12) & 0x3F)) as u8;
-        out[2] = (0x80 | ((cp >> 6) & 0x3F)) as u8;
-        out[3] = (0x80 | (cp & 0x3F)) as u8;
-        4
-    }
 }
