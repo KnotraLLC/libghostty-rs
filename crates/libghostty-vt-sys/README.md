@@ -1,4 +1,4 @@
-# ghostty-sys
+# libghostty-vt-sys
 
 Raw FFI bindings for libghostty-vt.
 

@@ -1,4 +1,4 @@
-//! Idiomatic, safe Rust bindings for `libghostty-vt`, a terminal emulation library.
+//! Idiomatic, safe Rust bindings for libghostty-vt, a terminal emulation library.
 //!
 //! # Memory management and lifetimes
 //!
@@ -32,7 +32,7 @@
     reason = "underlying C API may return any error outside of expected and
     mitigated situations, and it is not feasible to document them all"
 )]
-pub use ghostty_sys as ffi;
+pub use libghostty_vt_sys as ffi;
 
 pub mod alloc;
 pub mod build_info;

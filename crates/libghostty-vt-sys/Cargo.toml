@@ -1,5 +1,5 @@
 [package]
-name = "ghostty-sys"
+name = "libghostty-vt-sys"
 version.workspace = true
 edition.workspace = true
 license.workspace = true

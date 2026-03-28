@@ -56,7 +56,7 @@ use crate::{
 /// // Create a terminal and render state, then update the render state
 /// // from the terminal. The render state captures a snapshot of everything
 /// // needed to draw a frame.
-/// use ghostty::{Terminal, TerminalOptions, RenderState};
+/// use libghostty_vt::{Terminal, TerminalOptions, RenderState};
 ///
 /// let mut terminal = Terminal::new(TerminalOptions {
 ///     cols: 40,
@@ -79,7 +79,7 @@ use crate::{
 /// ```rust
 /// // Check the global dirty state to decide how much work the renderer
 /// // needs to do. After rendering, reset it to false.
-/// # use ghostty::{Terminal, TerminalOptions, RenderState, render::Dirty};
+/// # use libghostty_vt::{Terminal, TerminalOptions, RenderState, render::Dirty};
 /// # let terminal = Terminal::new(TerminalOptions {
 /// #     cols: 80,
 /// #     rows: 25,
@@ -100,7 +100,7 @@ use crate::{
 /// ```rust
 /// // Retrieve colors (background, foreground, palette) from the render
 /// // state. These are needed to resolve palette-indexed cell colors.
-/// # use ghostty::{Terminal, TerminalOptions, RenderState};
+/// # use libghostty_vt::{Terminal, TerminalOptions, RenderState};
 /// # let terminal = Terminal::new(TerminalOptions {
 /// #     cols: 80,
 /// #     rows: 25,
@@ -124,8 +124,8 @@ use crate::{
 ///
 /// ```rust
 /// // Read cursor position and visual style from the render state.
-/// use ghostty::render::CursorViewport;
-/// # use ghostty::{Terminal, TerminalOptions, RenderState};
+/// use libghostty_vt::render::CursorViewport;
+/// # use libghostty_vt::{Terminal, TerminalOptions, RenderState};
 /// # let terminal = Terminal::new(TerminalOptions {
 /// #     cols: 80,
 /// #     rows: 25,
@@ -148,14 +148,14 @@ use crate::{
 /// // Iterate rows via the row iterator. For each dirty row, iterate its
 /// // cells, read codepoints/graphemes and styles, and emit ANSI-colored
 /// // output as a simple "renderer".
-/// # use ghostty::{Terminal, TerminalOptions, RenderState};
+/// # use libghostty_vt::{Terminal, TerminalOptions, RenderState};
 /// # let terminal = Terminal::new(TerminalOptions {
 /// #     cols: 80,
 /// #     rows: 25,
 /// #     max_scrollback: 10000,
 /// # }).unwrap();
 /// # let mut render_state = RenderState::new().unwrap();
-/// use ghostty::render::{RowIterator, CellIterator};
+/// use libghostty_vt::render::{RowIterator, CellIterator};
 ///
 /// // During setup:
 /// let mut rows = RowIterator::new().unwrap();

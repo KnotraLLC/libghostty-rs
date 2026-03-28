@@ -3,7 +3,7 @@
 //! # Example
 //!
 //! ```rust
-//! use ghostty::paste;
+//! use libghostty_vt::paste;
 //!
 //! let safe_data = "hello world";
 //! let unsafe_data = "rm -rf /\n";

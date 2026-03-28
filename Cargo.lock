@@ -177,27 +177,9 @@ dependencies = [
 name = "ghostling_rs"
 version = "0.1.0"
 dependencies = [
- "ghostty",
+ "libghostty-vt",
  "macroquad",
  "nix",
-]
-
-[[package]]
-name = "ghostty"
-version = "0.1.0"
-dependencies = [
- "allocator-api2 0.4.0",
- "bitflags 2.11.0",
- "ghostty-sys",
- "int-enum",
-]
-
-[[package]]
-name = "ghostty-sys"
-version = "0.1.0"
-dependencies = [
- "bindgen",
- "libc",
 ]
 
 [[package]]
@@ -262,6 +244,24 @@ name = "libc"
 version = "0.2.183"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b5b646652bf6661599e1da8901b3b9522896f01e736bad5f723fe7a3a27f899d"
+
+[[package]]
+name = "libghostty-vt"
+version = "0.1.0"
+dependencies = [
+ "allocator-api2 0.4.0",
+ "bitflags 2.11.0",
+ "int-enum",
+ "libghostty-vt-sys",
+]
+
+[[package]]
+name = "libghostty-vt-sys"
+version = "0.1.0"
+dependencies = [
+ "bindgen",
+ "libc",
+]
 
 [[package]]
 name = "libloading"

@@ -5,13 +5,13 @@
 - Requires Zig 0.15.x on PATH and a Nix dev shell
 - Enter dev shell: `nix develop`
 - Check: `cargo check`
-- Test: `cargo test -p ghostty-sys`
+- Test: `cargo test -p libghostty-vt-sys`
 - Build example: `cargo build -p ghostling_rs`
-- Run example: `LD_LIBRARY_PATH=$(dirname $(find target/debug/build/ghostty-sys-*/out -name "libghostty-vt*" | head -1)) cargo run -p ghostling_rs`
+- Run example: `LD_LIBRARY_PATH=$(dirname $(find target/debug/build/libghostty-vt-sys-*/out -name "libghostty-vt*" | head -1)) cargo run -p ghostling_rs`
 
 ## Code Conventions
 
-- Rust workspace: `ghostty-sys` (FFI bindings), `ghostty` (safe wrappers), `ghostling_rs` (example)
+- Rust workspace: `libghostty-vt-sys` (FFI bindings), `libghostty-vt` (safe wrappers), `ghostling_rs` (example)
 - Opaque pointer pattern: `NonNull<ffi::GhosttyFoo>` + `PhantomData<*mut ()>` + `Drop`
 - Sized structs: set `size` field to `std::mem::size_of::<Type>()` before FFI calls
 - `from_result()` maps `GhosttyResult` to `Result<(), Error>`

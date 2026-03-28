@@ -4,15 +4,15 @@ Rust bindings and safe API for [libghostty-vt](https://ghostty.org), the virtual
 
 ## Workspace Layout
 
-- `crates/ghostty-sys` — raw FFI bindings generated from `ghostty/vt.h`
-- `crates/ghostty` — safe Rust wrappers (Terminal, RenderState, KeyEncoder, MouseEncoder, etc.)
+- `crates/libghostty-vt-sys` — raw FFI bindings generated from `ghostty/vt.h`
+- `crates/libghostty-vt` — safe Rust wrappers (Terminal, RenderState, KeyEncoder, MouseEncoder, etc.)
 - `example/ghostling_rs` — Rust port of [ghostling](https://github.com/ghostty-org/ghostling), a minimal terminal emulator using [macroquad](https://macroquad.rs)
 
 ## Quick Start
 
 ```rust
-use ghostty::{Terminal, TerminalOptions, RenderState};
-use ghostty::render::{RowIterator, CellIterator};
+use libghostty_vt::{Terminal, TerminalOptions, RenderState};
+use libghostty_vt::render::{RowIterator, CellIterator};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Create a terminal with 80 columns, 24 rows, and scrollback.
@@ -59,7 +59,7 @@ Requires [Zig](https://ziglang.org/) 0.15.x on PATH. The ghostty source is fetch
 ```sh
 nix develop
 cargo check
-cargo test -p ghostty-sys
+cargo test -p libghostty-vt-sys
 cargo build -p ghostling_rs
 ```
 
@@ -67,10 +67,10 @@ cargo build -p ghostling_rs
 
 ```sh
 # Linux
-LD_LIBRARY_PATH=$(dirname $(find target/debug/build/ghostty-sys-*/out -name "libghostty-vt*" | head -1)) \
+LD_LIBRARY_PATH=$(dirname $(find target/debug/build/libghostty-vt-sys-*/out -name "libghostty-vt*" | head -1)) \
   cargo run -p ghostling_rs
 
 # macOS
-DYLD_LIBRARY_PATH=$(dirname $(find target/debug/build/ghostty-sys-*/out -name "libghostty-vt*" | head -1)) \
+DYLD_LIBRARY_PATH=$(dirname $(find target/debug/build/libghostty-vt-sys-*/out -name "libghostty-vt*" | head -1)) \
   cargo run -p ghostling_rs
 ```

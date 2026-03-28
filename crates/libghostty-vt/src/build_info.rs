@@ -4,7 +4,7 @@
 //!
 //! # Example
 //! ```rust
-//! use ghostty::{Error, build_info::*};
+//! use libghostty_vt::{Error, build_info::*};
 //!
 //! fn print_build_info() -> Result<(), Error> {
 //!     println!(

@@ -24,7 +24,7 @@ use crate::{
 ///
 /// # Example
 /// ```rust
-/// use ghostty::sgr::{Parser, Attribute};
+/// use libghostty_vt::sgr::{Parser, Attribute};
 ///
 /// let mut parser = Parser::new().unwrap();
 /// parser.set_params(&[1, 31], None).unwrap();

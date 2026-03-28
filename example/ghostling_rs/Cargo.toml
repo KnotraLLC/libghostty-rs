@@ -6,6 +6,6 @@ license.workspace = true
 rust-version.workspace = true
 
 [dependencies]
-ghostty.workspace = true
+libghostty-vt.workspace = true
 macroquad = "0.4.14"
 nix = { version = "0.31.2", features = ["term", "fs", "signal", "process", "user", "ioctl"] }

@@ -10,7 +10,7 @@
 //! # Example
 //!
 //! ```rust
-//! use ghostty::focus::Event;
+//! use libghostty_vt::focus::Event;
 //! let mut buf = [0u8; 8];
 //! if let Ok(written) = Event::Gained.encode(&mut buf) {
 //!     println!("Encoded {written} bytes: {:?}", &buf[..written]);

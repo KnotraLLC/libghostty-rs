@@ -61,7 +61,7 @@ pub use ffi::GhosttySizeReportSize as SizeReportSize;
 ///
 /// ```rust
 /// use std::{cell::Cell, rc::Rc};
-/// use ghostty::{Terminal, TerminalOptions};
+/// use libghostty_vt::{Terminal, TerminalOptions};
 ///
 /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// let mut terminal = Terminal::new(TerminalOptions {

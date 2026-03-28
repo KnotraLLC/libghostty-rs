@@ -15,7 +15,7 @@ use macroquad::{
 };
 use nix::sys::wait;
 
-use ghostty::{
+use libghostty_vt::{
     RenderState, Terminal, TerminalOptions, build_info,
     key::{self, Key},
     mouse,
@@ -284,7 +284,7 @@ fn render_terminal<'alloc>(
     dims: Dimensions,
     colors: &Colors,
     font: Option<&Font>,
-) -> Result<(), ghostty::Error> {
+) -> Result<(), libghostty_vt::Error> {
     // Populate the row iterator from the current render state snapshot,
     // resulting in a row *iteration* object, which can be thought of as
     // a cursor into a row of the snapshot. Attributes of the current row
@@ -475,7 +475,7 @@ fn handle_keyboard_input<'alloc>(
     event: &mut key::Event<'alloc>,
     terminal: &Terminal<'alloc, '_>,
     response: &mut Vec<u8>,
-) -> Result<(), ghostty::Error> {
+) -> Result<(), libghostty_vt::Error> {
     // Drain printable characters from macroquad's input queue.  We collect
     // them into a single UTF-8 buffer so the encoder can attach text
     // to the key event.
@@ -564,7 +564,7 @@ fn handle_mouse_input<'alloc>(
     terminal: &mut Terminal<'alloc, '_>,
     dims: Dimensions,
     response: &mut Vec<u8>,
-) -> Result<(), ghostty::Error> {
+) -> Result<(), libghostty_vt::Error> {
     // Track whether any button is currently held — the encoder uses
     // this to distinguish drags from plain motion.
     let any_pressed = ALL_MOUSE_BUTTONS
@@ -814,7 +814,7 @@ mod pty {
         process::Command,
     };
 
-    use ghostty::Terminal;
+    use libghostty_vt::Terminal;
     use nix::{
         errno::Errno,
         fcntl::{self, OFlag},

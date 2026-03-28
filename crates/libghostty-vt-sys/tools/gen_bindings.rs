@@ -3,8 +3,8 @@ use std::path::PathBuf;
 
 fn main() {
     // The include directory is produced by build.rs. After a successful
-    // `cargo build -p ghostty-sys`, the headers live in:
-    //   target/<profile>/build/ghostty-sys-<hash>/out/ghostty-install/include
+    // `cargo build -p libghostty-vt-sys`, the headers live in:
+    //   target/<profile>/build/libghostty-vt-sys-<hash>/out/ghostty-install/include
     //
     // For convenience, also allow GHOSTTY_SOURCE_DIR/zig-out/include or
     // an explicit GHOSTTY_INCLUDE_DIR override.
@@ -13,7 +13,7 @@ fn main() {
     } else if let Ok(src) = env::var("GHOSTTY_SOURCE_DIR") {
         PathBuf::from(src).join("zig-out").join("include")
     } else {
-        // Walk target/debug/build/ to find the ghostty-sys output.
+        // Walk target/debug/build/ to find the libghostty-vt-sys output.
         let manifest_dir =
             PathBuf::from(env::var("CARGO_MANIFEST_DIR").expect("CARGO_MANIFEST_DIR must be set"));
         let workspace_root = manifest_dir
@@ -28,7 +28,7 @@ fn main() {
             for entry in entries.flatten() {
                 let name = entry.file_name();
                 let name_str = name.to_string_lossy();
-                if name_str.starts_with("ghostty-sys-") {
+                if name_str.starts_with("libghostty-vt-sys-") {
                     let candidate = entry
                         .path()
                         .join("out")
@@ -43,7 +43,7 @@ fn main() {
         }
         found.unwrap_or_else(|| {
             panic!(
-                "could not find ghostty headers; run `cargo build -p ghostty-sys` first, \
+                "could not find ghostty headers; run `cargo build -p libghostty-vt-sys` first, \
                  or set GHOSTTY_INCLUDE_DIR or GHOSTTY_SOURCE_DIR"
             )
         })
