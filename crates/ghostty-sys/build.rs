@@ -1,16 +1,17 @@
 use std::env;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::process::Command;
 
 /// Pinned ghostty commit. Update this to pull a newer version.
 const GHOSTTY_REPO: &str = "https://github.com/ghostty-org/ghostty.git";
-const GHOSTTY_COMMIT: &str = "ed1397826b03fc91eb07337d070290045bad0365";
+const GHOSTTY_COMMIT: &str = "bebca84668947bfc92b9a30ed58712e1c34eee1d";
 
 fn main() {
     println!("cargo:rerun-if-env-changed=LIBGHOSTTY_SYS_NO_VENDOR");
     println!("cargo:rerun-if-env-changed=GHOSTTY_SOURCE_DIR");
     println!("cargo:rerun-if-env-changed=TARGET");
     println!("cargo:rerun-if-env-changed=HOST");
+    println!("cargo:rerun-if-changed=crates/ghostty-sys/build.rs");
 
     let out_dir = PathBuf::from(env::var("OUT_DIR").expect("OUT_DIR must be set"));
     let target = env::var("TARGET").expect("TARGET must be set");
@@ -77,18 +78,16 @@ fn main() {
 
 /// Clone ghostty at the pinned commit into OUT_DIR/ghostty-src.
 /// Reuses an existing clone if the commit matches.
-fn fetch_ghostty(out_dir: &PathBuf) -> PathBuf {
+fn fetch_ghostty(out_dir: &Path) -> PathBuf {
     let src_dir = out_dir.join("ghostty-src");
     let stamp = src_dir.join(".ghostty-commit");
 
     // Skip fetch if we already have the right commit.
-    if stamp.exists() {
-        if let Ok(existing) = std::fs::read_to_string(&stamp) {
-            if existing.trim() == GHOSTTY_COMMIT {
+    if stamp.exists()
+        && let Ok(existing) = std::fs::read_to_string(&stamp)
+            && existing.trim() == GHOSTTY_COMMIT {
                 return src_dir;
             }
-        }
-    }
 
     // Clean and clone fresh.
     if src_dir.exists() {
@@ -114,8 +113,7 @@ fn fetch_ghostty(out_dir: &PathBuf) -> PathBuf {
         .current_dir(&src_dir);
     run(checkout, "git checkout ghostty commit");
 
-    std::fs::write(&stamp, GHOSTTY_COMMIT)
-        .unwrap_or_else(|e| panic!("failed to write stamp: {e}"));
+    std::fs::write(&stamp, GHOSTTY_COMMIT).unwrap_or_else(|e| panic!("failed to write stamp: {e}"));
 
     src_dir
 }

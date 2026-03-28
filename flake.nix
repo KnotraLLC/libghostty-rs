@@ -99,12 +99,12 @@
             pkgs.openssl
             pkgs.cmake
             pkgs.ninja
-          ] ++ pkgs.lib.optionals pkgs.stdenv.isLinux [
-            pkgs.xorg.libX11
-            pkgs.xorg.libXcursor
-            pkgs.xorg.libXrandr
-            pkgs.xorg.libXinerama
-            pkgs.xorg.libXi
+          ] ++ pkgs.lib.optionals pkgs.stdenv.hostPlatform.isLinux [
+            pkgs.libx11
+            pkgs.libxcursor
+            pkgs.libxrandr
+            pkgs.libxinerama
+            pkgs.libxi
             pkgs.libGL
             pkgs.libxkbcommon
             pkgs.wayland
@@ -112,13 +112,22 @@
 
           shellHook = ''
             export LIBCLANG_PATH=${pkgs.libclang.lib}/lib
-          '' + pkgs.lib.optionalString pkgs.stdenv.isDarwin ''
+          '' + pkgs.lib.optionalString pkgs.stdenv.hostPlatform.isDarwin ''
             # Unset Nix Darwin SDK env vars and remove the xcbuild
             # xcrun wrapper so Zig's SDK detection uses the real
             # system xcrun/xcode-select.
             unset SDKROOT
             unset DEVELOPER_DIR
             export PATH=$(echo "$PATH" | tr ':' '\n' | grep -v xcbuild | tr '\n' ':')
+          '' + pkgs.lib.optionalString pkgs.stdenv.hostPlatform.isLinux ''
+            # Make Ghostling able to find libGL on Linux.
+            export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:${pkgs.lib.makeLibraryPath [
+              pkgs.libglvnd
+              pkgs.wayland
+              pkgs.libx11
+              pkgs.libxkbcommon
+              pkgs.libxi
+            ]}"
           '';
         };
       }
