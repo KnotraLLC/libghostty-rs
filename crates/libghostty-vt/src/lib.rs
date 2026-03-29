@@ -32,6 +32,8 @@
     reason = "underlying C API may return any error outside of expected and
     mitigated situations, and it is not feasible to document them all"
 )]
+#![cfg_attr(docsrs, feature(doc_cfg))]
+
 pub use libghostty_vt_sys as ffi;
 
 pub mod alloc;
