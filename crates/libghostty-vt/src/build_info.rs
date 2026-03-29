@@ -27,53 +27,53 @@ use std::mem::MaybeUninit;
 
 use crate::{
     error::{Error, Result, from_result},
-    ffi::{self, BuildInfo::*},
+    ffi::{self, BuildInfo as Info},
 };
 
 /// Whether SIMD-accelerated code paths are enabled.
 pub fn supports_simd() -> Result<bool> {
-    build_info(SIMD)
+    build_info(Info::SIMD)
 }
 
 /// Whether Kitty graphics protocol support is available.
 pub fn supports_kitty_graphics() -> Result<bool> {
-    build_info(KITTY_GRAPHICS)
+    build_info(Info::KITTY_GRAPHICS)
 }
 
 /// Whether tmux control mode support is available.
 pub fn supports_tmux_control_mode() -> Result<bool> {
-    build_info(TMUX_CONTROL_MODE)
+    build_info(Info::TMUX_CONTROL_MODE)
 }
 
 /// The optimization mode the library was built with.
 pub fn optimize_mode() -> Result<OptimizeMode> {
-    build_info::<ffi::OptimizeMode::Type>(OPTIMIZE)
+    build_info::<ffi::OptimizeMode::Type>(Info::OPTIMIZE)
         .and_then(|v| v.try_into().map_err(|_| Error::InvalidValue))
 }
 
 /// The full version string (e.g. "1.2.3" or "1.2.3-dev+abcdef").
 pub fn version_string() -> Result<&'static str> {
-    build_info::<ffi::String>(VERSION_STRING)
+    build_info::<ffi::String>(Info::VERSION_STRING)
         // SAFETY: API guarantees
         .map(|s| unsafe { s.to_str() })
 }
 /// The major version number.
 pub fn major_version() -> Result<usize> {
-    build_info(VERSION_MAJOR)
+    build_info(Info::VERSION_MAJOR)
 }
 /// The minor version number.
 pub fn minor_version() -> Result<usize> {
-    build_info(VERSION_MINOR)
+    build_info(Info::VERSION_MINOR)
 }
 /// The patch version number.
 pub fn patch_version() -> Result<usize> {
-    build_info(VERSION_PATCH)
+    build_info(Info::VERSION_PATCH)
 }
 /// The build metadata string (e.g. commit hash).
 ///
 /// Has zero length if no build metadata is present.
 pub fn build_version() -> Result<&'static str> {
-    build_info::<ffi::String>(VERSION_BUILD)
+    build_info::<ffi::String>(Info::VERSION_BUILD)
         // SAFETY: API guarantees
         .map(|s| unsafe { s.to_str() })
 }

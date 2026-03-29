@@ -165,7 +165,8 @@ impl ParseCallbacks for Callbacks {
         // Fixup some int macro types to reduce manual casting
         if name.starts_with("GHOSTTY_DA_") || name.starts_with("GHOSTTY_MODS_") {
             Some(IntKind::U16)
-        } else if name.starts_with("GHOSTTY_KITTY_KEY_") {
+        } else if name.starts_with("GHOSTTY_KITTY_KEY_") || name.starts_with("GHOSTTY_COLOR_NAMED_")
+        {
             Some(IntKind::U8)
         } else {
             None
