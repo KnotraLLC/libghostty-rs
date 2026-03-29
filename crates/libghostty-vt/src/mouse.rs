@@ -18,7 +18,7 @@ use std::mem::MaybeUninit;
 use crate::{
     alloc::{Allocator, Object},
     error::{Error, Result, from_result, from_result_with_len},
-    ffi::{self, MouseEncoderOption::*},
+    ffi::{self, MouseEncoderOption as Opt},
     key,
     terminal::Terminal,
 };
@@ -137,14 +137,14 @@ impl<'alloc> Encoder<'alloc> {
     /// Set mouse tracking mode.
     pub fn set_tracking_mode(&mut self, value: TrackingMode) -> &mut Self {
         unsafe {
-            self.setopt(EVENT, std::ptr::from_ref(&value).cast());
+            self.setopt(Opt::EVENT, std::ptr::from_ref(&value).cast());
         }
         self
     }
     /// Set mouse output format.
     pub fn set_format(&mut self, value: Format) -> &mut Self {
         unsafe {
-            self.setopt(FORMAT, std::ptr::from_ref(&value).cast());
+            self.setopt(Opt::FORMAT, std::ptr::from_ref(&value).cast());
         }
         self
     }
@@ -152,21 +152,21 @@ impl<'alloc> Encoder<'alloc> {
     pub fn set_size(&mut self, value: EncoderSize) -> &mut Self {
         let raw: ffi::MouseEncoderSize = value.into();
         unsafe {
-            self.setopt(SIZE, std::ptr::from_ref(&raw).cast());
+            self.setopt(Opt::SIZE, std::ptr::from_ref(&raw).cast());
         }
         self
     }
     /// Set whether any mouse button is currently pressed.
     pub fn set_any_button_pressed(&mut self, value: bool) -> &mut Self {
         unsafe {
-            self.setopt(ANY_BUTTON_PRESSED, std::ptr::from_ref(&value).cast());
+            self.setopt(Opt::ANY_BUTTON_PRESSED, std::ptr::from_ref(&value).cast());
         }
         self
     }
     /// Set whether to enable motion deduplication by last cell.
     pub fn set_track_last_cell(&mut self, value: bool) -> &mut Self {
         unsafe {
-            self.setopt(TRACK_LAST_CELL, std::ptr::from_ref(&value).cast());
+            self.setopt(Opt::TRACK_LAST_CELL, std::ptr::from_ref(&value).cast());
         }
         self
     }

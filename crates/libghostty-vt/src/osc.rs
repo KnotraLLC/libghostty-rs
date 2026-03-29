@@ -1,6 +1,6 @@
 //! Handling OSC (Operating System Command) escape sequences.
 
-use std::marker::PhantomData;
+use std::{marker::PhantomData, mem::MaybeUninit};
 
 use crate::{
     alloc::{Allocator, Object},
@@ -101,23 +101,98 @@ pub struct Command<'p, 'alloc> {
     _parser: PhantomData<&'p Parser<'alloc>>,
 }
 
-impl Command<'_, '_> {
+impl<'p> Command<'p, '_> {
     /// Get the type of an OSC command.
     ///
     /// This can be used to determine what kind of command was parsed and
     /// what data might be available from it.
     #[must_use]
-    pub fn command_type(&self) -> CommandType {
-        CommandType::try_from(unsafe { ffi::ghostty_osc_command_type(self.inner.as_raw()) })
-            .unwrap_or_default()
+    pub fn command_type(self) -> CommandType<'p> {
+        self.command_type_inner().unwrap_or(CommandType::Invalid)
+    }
+
+    fn command_type_inner(&self) -> Option<CommandType<'p>> {
+        use ffi::OscCommandData as Data;
+        use ffi::OscCommandType as Type;
+
+        let raw_type = unsafe { ffi::ghostty_osc_command_type(self.inner.as_raw()) };
+        Some(match raw_type {
+            Type::CHANGE_WINDOW_TITLE => CommandType::ChangeWindowTitle {
+                title: self.get(Data::CHANGE_WINDOW_TITLE_STR)?,
+            },
+            Type::CHANGE_WINDOW_ICON => CommandType::ChangeWindowIcon,
+            Type::SEMANTIC_PROMPT => CommandType::SemanticPrompt,
+            Type::CLIPBOARD_CONTENTS => CommandType::ClipboardContents,
+            Type::REPORT_PWD => CommandType::ReportPwd,
+            Type::MOUSE_SHAPE => CommandType::MouseShape,
+            Type::COLOR_OPERATION => CommandType::ColorOperation,
+            Type::KITTY_COLOR_PROTOCOL => CommandType::KittyColorProtocol,
+            Type::SHOW_DESKTOP_NOTIFICATION => CommandType::ShowDesktopNotification,
+            Type::HYPERLINK_START => CommandType::HyperlinkStart,
+            Type::HYPERLINK_END => CommandType::HyperlinkEnd,
+            Type::CONEMU_SLEEP => CommandType::ConemuSleep,
+            Type::CONEMU_SHOW_MESSAGE_BOX => CommandType::ConemuShowMessageBox,
+            Type::CONEMU_CHANGE_TAB_TITLE => CommandType::ConemuChangeTabTitle,
+            Type::CONEMU_PROGRESS_REPORT => CommandType::ConemuProgressReport,
+            Type::CONEMU_WAIT_INPUT => CommandType::ConemuWaitInput,
+            Type::CONEMU_GUIMACRO => CommandType::ConemuGuiMacro,
+            Type::CONEMU_RUN_PROCESS => CommandType::ConemuRunProcess,
+            Type::CONEMU_OUTPUT_ENVIRONMENT_VARIABLE => {
+                CommandType::ConemuOutputEnvironmentVariable
+            }
+            Type::CONEMU_XTERM_EMULATION => CommandType::ConemuXtermEmulation,
+            Type::CONEMU_COMMENT => CommandType::ConemuComment,
+            Type::KITTY_TEXT_SIZING => CommandType::KittyTextSizing,
+
+            _ => return None,
+        })
+    }
+
+    fn get<T>(&self, tag: ffi::OscCommandData::Type) -> Option<T> {
+        let mut value = MaybeUninit::<T>::zeroed();
+        let result = unsafe {
+            ffi::ghostty_osc_command_data(self.inner.as_raw(), tag, value.as_mut_ptr().cast())
+        };
+
+        if result {
+            // SAFETY: Value should be initialized after successful call.
+            Some(unsafe { value.assume_init() })
+        } else {
+            None
+        }
     }
 }
 
 /// Type of an OSC command.
-#[expect(missing_docs, reason = "missing upstream docs")]
 #[repr(u32)]
-#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, int_enum::IntEnum)]
-pub enum CommandType {
+#[derive(Debug, Clone, Default)]
+#[expect(missing_docs, reason = "missing upstream docs")]
+pub enum CommandType<'p> {
     #[default]
-    Invalid = ffi::OscCommandType::INVALID,
+    Invalid,
+    ChangeWindowTitle {
+        /// Window title string data.
+        title: &'p str,
+    },
+    ChangeWindowIcon,
+    SemanticPrompt,
+    ClipboardContents,
+    ReportPwd,
+    MouseShape,
+    ColorOperation,
+    KittyColorProtocol,
+    ShowDesktopNotification,
+    HyperlinkStart,
+    HyperlinkEnd,
+    ConemuSleep,
+    ConemuShowMessageBox,
+    ConemuChangeTabTitle,
+    ConemuProgressReport,
+    ConemuWaitInput,
+    ConemuGuiMacro,
+    ConemuRunProcess,
+    ConemuOutputEnvironmentVariable,
+    ConemuXtermEmulation,
+    ConemuComment,
+    KittyTextSizing,
 }

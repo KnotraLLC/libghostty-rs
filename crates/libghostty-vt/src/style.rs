@@ -95,24 +95,23 @@ pub struct RgbColor {
 pub struct PaletteIndex(pub ffi::ColorPaletteIndex);
 
 impl PaletteIndex {
-    #![expect(clippy::cast_possible_truncation, reason = "bindgen ain't perfect")]
     #![expect(missing_docs, reason = "self-explanatory")]
-    pub const BLACK: PaletteIndex = PaletteIndex(ffi::COLOR_NAMED_BLACK as u8);
-    pub const RED: PaletteIndex = PaletteIndex(ffi::COLOR_NAMED_RED as u8);
-    pub const GREEN: PaletteIndex = PaletteIndex(ffi::COLOR_NAMED_GREEN as u8);
-    pub const YELLOW: PaletteIndex = PaletteIndex(ffi::COLOR_NAMED_YELLOW as u8);
-    pub const BLUE: PaletteIndex = PaletteIndex(ffi::COLOR_NAMED_BLUE as u8);
-    pub const MAGENTA: PaletteIndex = PaletteIndex(ffi::COLOR_NAMED_MAGENTA as u8);
-    pub const CYAN: PaletteIndex = PaletteIndex(ffi::COLOR_NAMED_CYAN as u8);
-    pub const WHITE: PaletteIndex = PaletteIndex(ffi::COLOR_NAMED_WHITE as u8);
-    pub const BRIGHT_BLACK: PaletteIndex = PaletteIndex(ffi::COLOR_NAMED_BRIGHT_BLACK as u8);
-    pub const BRIGHT_RED: PaletteIndex = PaletteIndex(ffi::COLOR_NAMED_BRIGHT_RED as u8);
-    pub const BRIGHT_GREEN: PaletteIndex = PaletteIndex(ffi::COLOR_NAMED_BRIGHT_GREEN as u8);
-    pub const BRIGHT_YELLOW: PaletteIndex = PaletteIndex(ffi::COLOR_NAMED_BRIGHT_YELLOW as u8);
-    pub const BRIGHT_BLUE: PaletteIndex = PaletteIndex(ffi::COLOR_NAMED_BRIGHT_BLUE as u8);
-    pub const BRIGHT_MAGENTA: PaletteIndex = PaletteIndex(ffi::COLOR_NAMED_BRIGHT_MAGENTA as u8);
-    pub const BRIGHT_CYAN: PaletteIndex = PaletteIndex(ffi::COLOR_NAMED_BRIGHT_CYAN as u8);
-    pub const BRIGHT_WHITE: PaletteIndex = PaletteIndex(ffi::COLOR_NAMED_BRIGHT_WHITE as u8);
+    pub const BLACK: PaletteIndex = PaletteIndex(ffi::COLOR_NAMED_BLACK);
+    pub const RED: PaletteIndex = PaletteIndex(ffi::COLOR_NAMED_RED);
+    pub const GREEN: PaletteIndex = PaletteIndex(ffi::COLOR_NAMED_GREEN);
+    pub const YELLOW: PaletteIndex = PaletteIndex(ffi::COLOR_NAMED_YELLOW);
+    pub const BLUE: PaletteIndex = PaletteIndex(ffi::COLOR_NAMED_BLUE);
+    pub const MAGENTA: PaletteIndex = PaletteIndex(ffi::COLOR_NAMED_MAGENTA);
+    pub const CYAN: PaletteIndex = PaletteIndex(ffi::COLOR_NAMED_CYAN);
+    pub const WHITE: PaletteIndex = PaletteIndex(ffi::COLOR_NAMED_WHITE);
+    pub const BRIGHT_BLACK: PaletteIndex = PaletteIndex(ffi::COLOR_NAMED_BRIGHT_BLACK);
+    pub const BRIGHT_RED: PaletteIndex = PaletteIndex(ffi::COLOR_NAMED_BRIGHT_RED);
+    pub const BRIGHT_GREEN: PaletteIndex = PaletteIndex(ffi::COLOR_NAMED_BRIGHT_GREEN);
+    pub const BRIGHT_YELLOW: PaletteIndex = PaletteIndex(ffi::COLOR_NAMED_BRIGHT_YELLOW);
+    pub const BRIGHT_BLUE: PaletteIndex = PaletteIndex(ffi::COLOR_NAMED_BRIGHT_BLUE);
+    pub const BRIGHT_MAGENTA: PaletteIndex = PaletteIndex(ffi::COLOR_NAMED_BRIGHT_MAGENTA);
+    pub const BRIGHT_CYAN: PaletteIndex = PaletteIndex(ffi::COLOR_NAMED_BRIGHT_CYAN);
+    pub const BRIGHT_WHITE: PaletteIndex = PaletteIndex(ffi::COLOR_NAMED_BRIGHT_WHITE);
 }
 
 /// Underline style types.

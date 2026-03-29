@@ -827,6 +827,15 @@ impl From<TertiaryDeviceAttributes> for ffi::DeviceAttributesTertiary {
     }
 }
 
+/// Color scheme reported in response to a CSI ? 996 n query.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[repr(u32)]
+#[expect(missing_docs, reason = "self-explanatory")]
+pub enum ColorScheme {
+    Light = ffi::ColorScheme::LIGHT,
+    Dark = ffi::ColorScheme::DARK,
+}
+
 //---------------------------------------
 // Callbacks
 //---------------------------------------
@@ -1046,7 +1055,7 @@ handlers! {
         &mut self,
         tag = SIZE,
         from = GhosttyTerminalSizeFn(out: *mut ffi::SizeReportSize) -> bool,
-        to = SizeFn() -> Option<ffi::SizeReportSize>,
+        to = SizeFn() -> Option<SizeReportSize>,
     ) |term, func| {
         if let Some(size) = func(&term) {
             // SAFETY: Out pointer is assumed to be valid.
@@ -1066,11 +1075,11 @@ handlers! {
         &mut self,
         tag = COLOR_SCHEME,
         from = GhosttyTerminalColorSchemeFn(out: *mut ffi::ColorScheme::Type) -> bool,
-        to = ColorSchemeFn() -> Option<ffi::ColorScheme::Type>,
+        to = ColorSchemeFn() -> Option<ColorScheme>,
     ) |term, func| {
         if let Some(size) = func(&term) {
             // SAFETY: Out pointer is assumed to be valid.
-            unsafe { *out = size };
+            unsafe { *out = size as ffi::ColorScheme::Type };
             true
         } else {
             false
