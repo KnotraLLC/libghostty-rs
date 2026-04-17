@@ -70,6 +70,13 @@ Use these knobs when you need to pin a different Ghostty fork or bisect an upstr
 - `GHOSTTY_SOURCE_DIR`: use a local Ghostty checkout instead of fetching one
 - `LIBGHOSTTY_VT_SYS_GHOSTTY_REPO` or `GHOSTTY_REPO`: override the Git remote used for vendored fetches
 - `LIBGHOSTTY_VT_SYS_GHOSTTY_COMMIT` or `GHOSTTY_COMMIT`: override the pinned Ghostty commit
+- `LIBGHOSTTY_VT_SYS_ZIG_OPTIMIZE` or `GHOSTTY_ZIG_OPTIMIZE`: force the Zig optimize mode (`Debug`, `ReleaseSafe`, `ReleaseFast`, `ReleaseSmall`)
+
+By default, the build script now maps Cargo optimization to Zig optimization:
+
+- `cargo build` / `cargo test` -> `-Doptimize=Debug`
+- `cargo build --release` / `cargo run --release` -> `-Doptimize=ReleaseFast`
+- size-optimized Cargo profiles (`OPT_LEVEL=s` or `z`) -> `-Doptimize=ReleaseSmall`
 
 Example:
 

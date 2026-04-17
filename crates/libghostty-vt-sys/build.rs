@@ -17,11 +17,15 @@ fn main() {
     println!("cargo:rerun-if-env-changed=LIBGHOSTTY_VT_SYS_NO_VENDOR");
     println!("cargo:rerun-if-env-changed=LIBGHOSTTY_VT_SYS_GHOSTTY_REPO");
     println!("cargo:rerun-if-env-changed=LIBGHOSTTY_VT_SYS_GHOSTTY_COMMIT");
+    println!("cargo:rerun-if-env-changed=LIBGHOSTTY_VT_SYS_ZIG_OPTIMIZE");
     println!("cargo:rerun-if-env-changed=GHOSTTY_REPO");
     println!("cargo:rerun-if-env-changed=GHOSTTY_COMMIT");
+    println!("cargo:rerun-if-env-changed=GHOSTTY_ZIG_OPTIMIZE");
     println!("cargo:rerun-if-env-changed=GHOSTTY_SOURCE_DIR");
     println!("cargo:rerun-if-env-changed=TARGET");
     println!("cargo:rerun-if-env-changed=HOST");
+    println!("cargo:rerun-if-env-changed=OPT_LEVEL");
+    println!("cargo:rerun-if-env-changed=PROFILE");
     println!("cargo:rerun-if-changed=crates/libghostty-vt-sys/build.rs");
 
     let out_dir = PathBuf::from(env::var("OUT_DIR").expect("OUT_DIR must be set"));
@@ -53,6 +57,7 @@ fn main() {
     build
         .arg("build")
         .arg("-Demit-lib-vt")
+        .arg(format!("-Doptimize={}", zig_optimize()))
         .arg("--prefix")
         .arg(&install_prefix)
         .current_dir(&ghostty_dir);
@@ -142,6 +147,17 @@ fn ghostty_commit() -> String {
     ghostty_env("LIBGHOSTTY_VT_SYS_GHOSTTY_COMMIT")
         .or_else(|| ghostty_env("GHOSTTY_COMMIT"))
         .unwrap_or_else(|| DEFAULT_GHOSTTY_COMMIT.to_owned())
+}
+
+fn zig_optimize() -> String {
+    ghostty_env("LIBGHOSTTY_VT_SYS_ZIG_OPTIMIZE")
+        .or_else(|| ghostty_env("GHOSTTY_ZIG_OPTIMIZE"))
+        .unwrap_or_else(|| match env::var("OPT_LEVEL").as_deref() {
+            Ok("0") => "Debug".to_owned(),
+            Ok("s") | Ok("z") => "ReleaseSmall".to_owned(),
+            Ok(_) => "ReleaseFast".to_owned(),
+            Err(_) => "Debug".to_owned(),
+        })
 }
 
 fn ghostty_env(key: &str) -> Option<String> {
