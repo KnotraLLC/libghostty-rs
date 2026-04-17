@@ -80,13 +80,13 @@ async fn main() -> Result<()> {
     // done before any terminal is created.
     graphics::set_png_decoder(Some(PngDecoder))?;
 
-    // Create a ghostty virtual terminal with the computed grid and 1000
-    // lines of scrollback.  This holds all the parsed screen state (cells,
+    // Create a ghostty virtual terminal with the computed grid and a 10 MiB
+    // scrollback budget. This holds all the parsed screen state (cells,
     // cursor, styles, modes) but knows nothing about the pty or the window.
     let mut terminal = Terminal::new(TerminalOptions {
         cols,
         rows,
-        max_scrollback: 1000,
+        max_scrollback: 10 * 1024 * 1024,
     })?;
 
     // The terminal options don't include cell pixel dimensions, so

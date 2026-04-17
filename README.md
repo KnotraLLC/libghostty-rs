@@ -19,7 +19,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut terminal = Terminal::new(TerminalOptions {
         cols: 80,
         rows: 24,
-        max_scrollback: 10_000,
+        max_scrollback: 10_000_000,
     })?;
 
     // Register an effect handler for PTY write-back (e.g. query responses).
@@ -79,7 +79,9 @@ LIBGHOSTTY_VT_SYS_GHOSTTY_COMMIT=a1e75daef8b64426dbca551c6e41b1fbc2b7ae24 \
 cargo check -p libghostty-vt-sys
 ```
 
-If you are investigating Drova performance, the current highest-impact tuning signal is still `max_scrollback`: `0` is much faster than any nonzero scrollback in the current Ghostty VT path. That is an upstream behavior issue, not a wrapper-level fix.
+`max_scrollback` is measured in bytes, not lines.
+
+If you are investigating Drova performance, the current highest-impact tuning signal is still `max_scrollback`: `0` is much faster than any nonzero scrollback in the current Ghostty VT path. That remains true even with realistic byte-sized budgets, so the main issue is still upstream terminal-core behavior rather than wrapper glue.
 
 ### Running the example
 

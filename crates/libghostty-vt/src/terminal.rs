@@ -119,7 +119,10 @@ pub struct Options {
     pub cols: u16,
     /// Terminal height in cells. Must be greater than zero.
     pub rows: u16,
-    /// Maximum number of lines to keep in scrollback history.
+    /// Maximum scrollback budget in bytes.
+    ///
+    /// Zero disables scrollback entirely. Nonzero values are rounded or
+    /// clamped by Ghostty to satisfy active-area and page-layout needs.
     pub max_scrollback: usize,
 }
 
