@@ -54,7 +54,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 ## Building
 
-Requires [Zig](https://ziglang.org/) 0.15.x on PATH. The ghostty source is fetched automatically at build time (pinned commit in `build.rs`). Set `GHOSTTY_SOURCE_DIR` to use a local checkout instead.
+Requires [Zig](https://ziglang.org/) 0.15.x on PATH. The vendored build defaults to `KnotraLLC/ghostty` at the pinned commit in `crates/libghostty-vt-sys/build.rs`.
 
 ```sh
 nix develop
@@ -62,6 +62,24 @@ cargo check
 cargo test -p libghostty-vt-sys
 cargo build -p ghostling_rs
 ```
+
+### Ghostty source selection
+
+Use these knobs when you need to pin a different Ghostty fork or bisect an upstream regression without editing the sys crate:
+
+- `GHOSTTY_SOURCE_DIR`: use a local Ghostty checkout instead of fetching one
+- `LIBGHOSTTY_VT_SYS_GHOSTTY_REPO` or `GHOSTTY_REPO`: override the Git remote used for vendored fetches
+- `LIBGHOSTTY_VT_SYS_GHOSTTY_COMMIT` or `GHOSTTY_COMMIT`: override the pinned Ghostty commit
+
+Example:
+
+```sh
+LIBGHOSTTY_VT_SYS_GHOSTTY_REPO=https://github.com/ghostty-org/ghostty.git \
+LIBGHOSTTY_VT_SYS_GHOSTTY_COMMIT=a1e75daef8b64426dbca551c6e41b1fbc2b7ae24 \
+cargo check -p libghostty-vt-sys
+```
+
+If you are investigating Drova performance, the current highest-impact tuning signal is still `max_scrollback`: `0` is much faster than any nonzero scrollback in the current Ghostty VT path. That is an upstream behavior issue, not a wrapper-level fix.
 
 ### Running the example
 

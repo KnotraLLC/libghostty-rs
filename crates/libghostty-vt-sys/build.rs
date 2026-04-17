@@ -3,8 +3,8 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 
 /// Pinned ghostty commit. Update this to pull a newer version.
-const GHOSTTY_REPO: &str = "https://github.com/ghostty-org/ghostty.git";
-const GHOSTTY_COMMIT: &str = "a1e75daef8b64426dbca551c6e41b1fbc2b7ae24";
+const DEFAULT_GHOSTTY_REPO: &str = "https://github.com/KnotraLLC/ghostty.git";
+const DEFAULT_GHOSTTY_COMMIT: &str = "a1e75daef8b64426dbca551c6e41b1fbc2b7ae24";
 
 fn main() {
     // docs.rs has no Zig toolchain. The checked-in bindings in src/bindings.rs
@@ -15,6 +15,10 @@ fn main() {
     }
 
     println!("cargo:rerun-if-env-changed=LIBGHOSTTY_VT_SYS_NO_VENDOR");
+    println!("cargo:rerun-if-env-changed=LIBGHOSTTY_VT_SYS_GHOSTTY_REPO");
+    println!("cargo:rerun-if-env-changed=LIBGHOSTTY_VT_SYS_GHOSTTY_COMMIT");
+    println!("cargo:rerun-if-env-changed=GHOSTTY_REPO");
+    println!("cargo:rerun-if-env-changed=GHOSTTY_COMMIT");
     println!("cargo:rerun-if-env-changed=GHOSTTY_SOURCE_DIR");
     println!("cargo:rerun-if-env-changed=TARGET");
     println!("cargo:rerun-if-env-changed=HOST");
@@ -23,8 +27,12 @@ fn main() {
     let out_dir = PathBuf::from(env::var("OUT_DIR").expect("OUT_DIR must be set"));
     let target = env::var("TARGET").expect("TARGET must be set");
     let host = env::var("HOST").expect("HOST must be set");
+    let ghostty_repo = ghostty_repo();
+    let ghostty_commit = ghostty_commit();
 
-    // Locate ghostty source: env override > fetch into OUT_DIR.
+    // Resolve Ghostty source in this order:
+    // 1. explicit local checkout (fastest path for upstream iteration)
+    // 2. pinned vendored fetch (deterministic CI/default path)
     let ghostty_dir = match env::var("GHOSTTY_SOURCE_DIR") {
         Ok(dir) => {
             let p = PathBuf::from(dir);
@@ -35,7 +43,7 @@ fn main() {
             );
             p
         }
-        Err(_) => fetch_ghostty(&out_dir),
+        Err(_) => fetch_ghostty(&out_dir, &ghostty_repo, &ghostty_commit),
     };
 
     // Build libghostty-vt via zig.
@@ -83,17 +91,17 @@ fn main() {
     println!("cargo:include={}", include_dir.display());
 }
 
-/// Clone ghostty at the pinned commit into OUT_DIR/ghostty-src.
-/// Reuses an existing clone if the commit matches.
-fn fetch_ghostty(out_dir: &Path) -> PathBuf {
+/// Clone Ghostty at the selected repo+commit into OUT_DIR/ghostty-src.
+/// The stamp includes both values so switching forks is deterministic.
+fn fetch_ghostty(out_dir: &Path, repo: &str, commit: &str) -> PathBuf {
     let src_dir = out_dir.join("ghostty-src");
     let stamp = src_dir.join(".ghostty-commit");
 
-    // Skip fetch if we already have the right commit.
-    if stamp.exists()
-        && let Ok(existing) = std::fs::read_to_string(&stamp)
-        && existing.trim() == GHOSTTY_COMMIT
-    {
+    // Reuse an existing checkout only when both the source repo and pinned
+    // commit match. This avoids accidentally benchmarking the wrong fork just
+    // because two repos share a commit object.
+    let expected_stamp = format!("{repo}\n{commit}\n");
+    if stamp.exists() && let Ok(existing) = std::fs::read_to_string(&stamp) && existing == expected_stamp {
         return src_dir;
     }
 
@@ -103,27 +111,41 @@ fn fetch_ghostty(out_dir: &Path) -> PathBuf {
             .unwrap_or_else(|e| panic!("failed to remove {}: {e}", src_dir.display()));
     }
 
-    eprintln!("Fetching ghostty {GHOSTTY_COMMIT} ...");
+    eprintln!("Fetching ghostty {repo} @ {commit} ...");
 
     let mut clone = Command::new("git");
     clone
         .arg("clone")
         .arg("--filter=blob:none")
         .arg("--no-checkout")
-        .arg(GHOSTTY_REPO)
+        .arg(repo)
         .arg(&src_dir);
     run(clone, "git clone ghostty");
 
     let mut checkout = Command::new("git");
-    checkout
-        .arg("checkout")
-        .arg(GHOSTTY_COMMIT)
-        .current_dir(&src_dir);
+    checkout.arg("checkout").arg(commit).current_dir(&src_dir);
     run(checkout, "git checkout ghostty commit");
 
-    std::fs::write(&stamp, GHOSTTY_COMMIT).unwrap_or_else(|e| panic!("failed to write stamp: {e}"));
+    std::fs::write(&stamp, expected_stamp)
+        .unwrap_or_else(|e| panic!("failed to write stamp: {e}"));
 
     src_dir
+}
+
+fn ghostty_repo() -> String {
+    ghostty_env("LIBGHOSTTY_VT_SYS_GHOSTTY_REPO")
+        .or_else(|| ghostty_env("GHOSTTY_REPO"))
+        .unwrap_or_else(|| DEFAULT_GHOSTTY_REPO.to_owned())
+}
+
+fn ghostty_commit() -> String {
+    ghostty_env("LIBGHOSTTY_VT_SYS_GHOSTTY_COMMIT")
+        .or_else(|| ghostty_env("GHOSTTY_COMMIT"))
+        .unwrap_or_else(|| DEFAULT_GHOSTTY_COMMIT.to_owned())
+}
+
+fn ghostty_env(key: &str) -> Option<String> {
+    env::var(key).ok().filter(|value| !value.trim().is_empty())
 }
 
 fn run(mut command: Command, context: &str) {
